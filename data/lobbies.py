@@ -12,4 +12,4 @@ class Lobby(SqlAlchemyBase, UserMixin, SerializerMixin):
     title = sqlalchemy.Column(sqlalchemy.String)
     user_count = sqlalchemy.Column(sqlalchemy.Integer)
     type = sqlalchemy.Column(sqlalchemy.Boolean)
-    users = orm.relationship("User", secondary="user_to_lobby", backref="lobby")
+    players = orm.relationship("Player", secondary="player_to_lobby", backref="lobby")
