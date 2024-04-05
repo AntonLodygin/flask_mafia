@@ -16,6 +16,7 @@ class Player(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     role = sqlalchemy.Column(sqlalchemy.String)
-    life = sqlalchemy.Column(sqlalchemy.Boolean)
+    life = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     user = orm.relationship("User")
+    lobby_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("lobbies.id"))
