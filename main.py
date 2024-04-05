@@ -4,8 +4,10 @@ from data import db_session
 from data.lobbies import Lobby
 from data.players import Player
 from data.users import User
+from forms.lobby_form import LobbyForm
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'mafia_secret_key'
 db_session.global_init("db/blogs.db")
 
 
@@ -16,9 +18,14 @@ def index():
     return render_template("index.html", lobbies=lobbies)
 
 
-@app.route("/lobbies/<int:id>")
+@app.route("/lobby/<int:id>")
 def lobby(id):
     return {}
+
+@app.route("/add_lobby")
+def add_lobby():
+    form = LobbyForm()
+    return render_template("add_lobby.html", form=form)
 
 
 if __name__ == '__main__':
