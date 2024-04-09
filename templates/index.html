@@ -12,11 +12,6 @@
 </head>
 <body>
     <div class="px-4 py-2">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Launch demo modal
-        </button>
-
-
         <a class="btn btn-outline-primary" href="/add_lobby">Создать лобби</a>
         <div class="row row-cols-md-3 g-3 py-3">
             {% for lobby in lobbies %}
@@ -50,14 +45,20 @@
                                         <button class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
-                                            <input type="text" class="form-control" id="lobby_password"><br>
-                                            <span id="p"></span><br>
-                                            <button class="btn btn-primary" id="password_btn">ОК</button>
-                                            <script>
-                                                password_btn.onclick = function() {
-                                                    document.getElementById("p").innerHTML = document.getElementById("lobby_password").value;
-                                                };
-                                            </script>
+                                        <form method="POST" action="/">
+                                            <input type="hidden" class="hidden_input" name='lobby_id' value="{{ lobby.id }}">
+                                            <input type="text" class="form-control" id="lobby_password" name="qwe"><br>
+<!--                                            <span id="p"></span><br>-->
+                                            <input type="submit" name='send' class="btn btn-primary" id="password_btn">
+<!--                                            <script>-->
+<!--                                                let input = document.querySelector(".hidden_input");-->
+
+<!--                                                password_btn.onclick = function() {-->
+
+<!--                                                    document.getElementById("p").innerHTML = document.getElementById("lobby_password").value;-->
+<!--                                                };-->
+<!--                                            </script>-->
+                                        </form>
                                     </div>
                                 </div>
                             </div>
