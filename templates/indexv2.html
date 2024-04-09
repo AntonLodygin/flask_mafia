@@ -48,7 +48,7 @@
                                     <button class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" novalidate>
+                                    <form method="POST" novalidate id="form{{lobbies[i].id}}">
                                         {{ forms[i].hidden_tag() }}
                                         {{ forms[i].hidden_id() }}
                                         {{ forms[i].password(class="form-control") }}<br>
