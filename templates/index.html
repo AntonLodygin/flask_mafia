@@ -11,12 +11,19 @@
     <title>Title</title>
 </head>
 <body>
-    <div class="px-4">
-        <div class="row row-cols-md-3 g-3">
+    <div class="px-4 py-2">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Launch demo modal
+        </button>
+
+
+        <a class="btn btn-outline-primary" href="/add_lobby">Создать лобби</a>
+        <div class="row row-cols-md-3 g-3 py-3">
             {% for lobby in lobbies %}
                 <div class="col">
                     <div class="card">
-                        <a href="/lobbies/{{ lobby.id }}">
+                        <a {% if not lobby.open %} data-bs-toggle="modal" data-bs-target="#exampleModal" {% else %}
+                           href="/lobby/{{ lobby.id }}" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">{{ lobby.title }}</h5>
                             </div>
@@ -35,6 +42,26 @@
                                 </div>
                             </div>
                         </a>
+                        <div class="modal fade" id="exampleModal">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                            <input type="text" class="form-control" id="lobby_password"><br>
+                                            <span id="p"></span><br>
+                                            <button class="btn btn-primary" id="password_btn">ОК</button>
+                                            <script>
+                                                password_btn.onclick = function() {
+                                                    document.getElementById("p").innerHTML = document.getElementById("lobby_password").value;
+                                                };
+                                            </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
