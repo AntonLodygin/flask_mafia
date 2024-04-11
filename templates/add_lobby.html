@@ -14,7 +14,7 @@
         <h2>Lobby Form</h2>
         <form method="post">
             {{ form.hidden_tag() }}
-            {% for field in form if field.name not in ("csrf_token", "submit") %}
+            {% for field in form if field.name not in ("csrf_token", "submit", "password", "open") %}
                 <div>
                     {{ field.label }}<br>
                     {{ field(class="form-control") }}
@@ -25,8 +25,39 @@
                     </div>
                 {% endfor %}
             {% endfor %}
+            <div>
+                {{ form.open(type="checkbox", class="form-check-input", checked="checked")}}
+                {{ form.open.label }}
+            </div><br>
+            <div id="password-div" style="display: none">
+                <div>
+                    {{ form.password.label }}
+                    {{ form.password(type="password", class="form-control", minlength="0")}}
+                </div><br>
+                {% for error in form.password.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
             {{ form.submit(type="submit", class="btn btn-primary")}}
         </form>
+        <script>
+            document.getElementById("open").onchange = function() {
+                let password_div = document.getElementById("password-div");
+                let password = document.getElementById("password");
+                if (document.getElementById("open").checked) {
+                password_div.style.display = "none";
+                password.required = false;
+                password.setAttribute("minlength", "0");
+                }
+                else {
+                password_div.style.display = "block";
+                password.required = true;
+                password.setAttribute("minlength", "4");
+                };
+            };
+        </script>
     </div>
 </body>
 </html>
