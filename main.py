@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, jsonify
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from flask_socketio import SocketIO
 
 from data import db_session
@@ -6,11 +7,59 @@ from data.lobbies import Lobby
 from data.players import Player
 from data.users import User
 from forms.lobby_form import LobbyForm
+from forms.login_form import LoginForm
+from forms.register_form import RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mafia_secret_key'
 socketio = SocketIO(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    db_sess = db_session.create_session()
+    form = RegisterForm()
+    if form.validate_on_submit():
+        new_user = User(email=form.email.data)
+        new_user.set_password(form.password.data)
+        db_sess.add(new_user)
+        db_sess.commit()
+        return redirect("/login")
+    return render_template("register.html", form=form, title="Регистрация")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect("/")
+    db_sess = db_session.create_session()
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if not user:
+            form.email.errors.append("Пользователь не найден")
+        elif not user.check_password(form.password.data):
+            form.password.errors.append("Неверный пароль")
+        else:
+            login_user(user)
+            return redirect("/")
+    return render_template("login.html", form=form, title="Вход")
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 @app.route("/")
@@ -24,7 +73,8 @@ def index():
 
 @app.route("/lobby/<int:id>")
 def lobby(id):
-    return {}
+        db_sess = db_session.create_session()
+        return jsonify([i.user.email for i in db_sess.query(Lobby).filter(Lobby.id == id).first().players])
 
 
 @app.route("/add_lobby", methods=["GET", "POST"])
@@ -42,11 +92,11 @@ def add_lobby():
 
 if __name__ == '__main__':
     # db_sess = db_session.create_session()
-    # user = User()
+    # user = User(email="qwe")
     # lobby = Lobby()
     # lobby1 = Lobby(open=False)
     # lobby1.set_password("qweqwe")
-    # player = Player()
+    # player = Player(user_id=1, lobby_id=1)
     # lobby.players.append(player)
     # db_sess.add(user)
     # db_sess.add(lobby)
