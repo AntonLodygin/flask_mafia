@@ -57,16 +57,19 @@ def add_lobby():
     return render_template("add_lobby.html", form=form)
 
 
-@app.route("/check_lobby_password")
+@app.route("/check_lobby_password/", methods=["POST"])
 def check_lobby_password():
-
+    db_sess = db_session.create_session()
+    print(request.json)
+    return "ok" if db_sess.query(Lobby).filter(Lobby.id == request.json["lobby_id"]).first().check_password(request.json["password"]) else "wrong"
+    # return "OK"
 
 
 if __name__ == '__main__':
-    # db_sess = db_session.create_session()
+    db_sess = db_session.create_session()
     # user = User()
-    # lobby = Lobby()
-    # lobby1 = Lobby(open=False)
+    #lobby = Lobby()
+    # lobby1 = Lobby(title='werwe',open=False)
     # lobby1.set_password("qweqwe")
     # player = Player()
     # lobby.players.append(player)
@@ -77,4 +80,4 @@ if __name__ == '__main__':
     # db_sess.merge(lobby)
     # db_sess.commit()
 
-    socketio.run(app, allow_unsafe_werkzeug=True, port=1212)
+    socketio.run(app, allow_unsafe_werkzeug=True, port=1111)

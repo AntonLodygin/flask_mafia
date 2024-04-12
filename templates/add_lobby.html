@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="px-4">
-        <h2>Lobby Form</h2>
+        <h2>Создание лобби</h2>
         <form method="post">
             {{ form.hidden_tag() }}
             {% for field in form if field.name not in ("csrf_token", "submit") %}

@@ -17,7 +17,7 @@
             {% for i in range(lobbies | length) %}
                 <div class="col">
                     <div class="card">
-                        <a {% if not lobbies[i].open %} data-bs-toggle="modal" data-bs-target="#exampleModal" {% else %}
+                        <a  {% if not lobbies[i].open %} data-bs-toggle="modal" data-lobbyid="{{ lobbies[i].id }}" class="close-lobby" data-bs-target="#exampleModal" {% else %}
                            href="/lobby/{{ lobbies[i].id }}" {% endif %}>
                             <div class="card-body">
                                 <h5 class="card-title">{{ lobbies[i].title }}</h5>
@@ -40,28 +40,29 @@
                     </div>
                 </div>
                 {% if not lobbies[i].open %}
-                    <div class="modal fade" id="exampleModal">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
-                                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form method="POST" novalidate id="form{{lobbies[i].id}}">
-                                        {{ forms[i].hidden_tag() }}
-                                        {{ forms[i].hidden_id() }}
-                                        {{ forms[i].password(class="form-control") }}<br>
-                                        {{ forms[i].submit(type="submit", class="btn btn-primary")}}
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 {% endif %}
             {% endfor %}
+            <div class="modal fade" id="exampleModal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="check-lobby-password-form" method="POST" novalidate>
+                                <input type="password" class="form-control">
+                                <p id="password-error"></p>
+                                <input type="hidden" value="">
+                                <input type="submit" value="OK" class="btn btn-primary">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <script src="../static/scripts/script.js"></script>
+ <script src="{{url_for('static', filename='scripts/script.js')}}"></script>
 </body>
 </html>
