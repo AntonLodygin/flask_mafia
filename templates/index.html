@@ -1,33 +1,25 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-            crossorigin="anonymous"></script>
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
     <div class="px-4 py-2">
         <a class="btn btn-outline-primary" href="/add_lobby">Создать лобби</a>
         <div class="row row-cols-md-3 g-3 py-3">
-            {% for lobby in lobbies %}
+            {% for i in range(lobbies | length) %}
                 <div class="col">
                     <div class="card">
-                        <a {% if not lobby.open %} data-bs-toggle="modal" data-bs-target="#exampleModal" {% else %}
-                           href="/lobby/{{ lobby.id }}" {% endif %}>
+                        <a  {% if not lobbies[i].open %} data-bs-toggle="modal"
+                            data-lobbyid="{{ lobbies[i].id }}" class="close-lobby"
+                            data-bs-target="#passwordModal" {% else %}
+                            href="/lobby/{{ lobbies[i].id }}" {% endif %}>
                             <div class="card-body">
-                                <h5 class="card-title">{{ lobby.title }}</h5>
+                                <h5 class="card-title">{{ lobbies[i].title }}</h5>
                             </div>
                             <div class="card-footer">
                                 <span>
-                                    Участники: {{ lobby.players | length }}/{{ lobby.user_count }}
+                                    Участники: {{ lobbies[i].players | length }}/{{ lobbies[i].user_count }}
                                 </span>
                                 <div class="text-end">
-                                    {% if lobby.open %}
+                                    {% if lobbies[i].open %}
                                         <img src="{{ url_for('static', filename='images/unlock.svg') }}" height="16">
                                         Открытое
                                     {% else %}
@@ -37,36 +29,33 @@
                                 </div>
                             </div>
                         </a>
-                        <div class="modal fade" id="exampleModal">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
-                                        <button class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="POST" action="/">
-                                            <input type="hidden" class="hidden_input" name='lobby_id' value="{{ lobby.id }}">
-                                            <input type="text" class="form-control" id="lobby_password" name="qwe"><br>
-<!--                                            <span id="p"></span><br>-->
-                                            <input type="submit" name='send' class="btn btn-primary" id="password_btn">
-<!--                                            <script>-->
-<!--                                                let input = document.querySelector(".hidden_input");-->
+                    </div>
+                </div>
+                {% if not lobbies[i].open %}
 
-<!--                                                password_btn.onclick = function() {-->
-
-<!--                                                    document.getElementById("p").innerHTML = document.getElementById("lobby_password").value;-->
-<!--                                                };-->
-<!--                                            </script>-->
-                                        </form>
-                                    </div>
+                {% endif %}
+            {% endfor %}
+            <div class="modal fade" id="passwordModal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
+                            <button class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form class="check-lobby-password-form" method="POST" novalidate>
+                                <input type="password" class="form-control"><br>
+                                <div class="alert alert-danger" id="password-error" hidden>
+                                    Неверный пароль
                                 </div>
-                            </div>
+                                <input type="hidden" value="">
+                                <input type="submit" value="OK" class="btn btn-primary">
+                            </form>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
-</body>
-</html>
+    <script src="{{url_for('static', filename='scripts/check_password.js')}}"></script>
+{% endblock %}
