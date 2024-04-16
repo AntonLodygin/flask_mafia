@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, request, jsonify
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, send
 
 from data import db_session
 from data.lobbies import Lobby
@@ -65,18 +65,13 @@ def logout():
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    lobbies = db_sess.query(Lobby).all()
+    lobbies = db_sess.query(Lobby).filter(Lobby.players).all()
     return render_template("index.html", lobbies=lobbies, title="Мафия")
 
 
 @app.route("/lobby/<int:id>")
 def lobby(id):
-    # db_sess = db_session.create_session()
-    # lobby = db_sess.query(Lobby).filter(Lobby.id == id).first()
-    # lobby.players.append(Player(user_id=current_user.id, lobby_id=id))
-    # print([i.user.email for i in lobby.players])
-    # return jsonify([i.user.email for i in lobby.players])
-    pass
+    return {}
 
 
 @app.route("/add_lobby", methods=["GET", "POST"])
@@ -102,8 +97,8 @@ def check_lobby_password():
 if __name__ == '__main__':
     # db_sess = db_session.create_session()
     # user = User(email="qwe")
-    # lobby = Lobby()
-    # lobby1 = Lobby(open=False)
+    # lobby = Lobby(title="open")
+    # lobby1 = Lobby(title="close", open=False)
     # lobby1.set_password("qweqwe")
     # player = Player(user_id=1, lobby_id=1)
     # lobby.players.append(player)
@@ -111,7 +106,6 @@ if __name__ == '__main__':
     # db_sess.add(lobby)
     # db_sess.add(player)
     # db_sess.add(lobby1)
-    # db_sess.merge(lobby)
     # db_sess.commit()
 
     socketio.run(app, allow_unsafe_werkzeug=True, port=1337)
