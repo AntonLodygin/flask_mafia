@@ -7,10 +7,9 @@
             {% for i in range(lobbies | length) %}
                 <div class="col">
                     <div class="card">
-                        <a  {% if not lobbies[i].open %} data-bs-toggle="modal"
-                            data-lobbyid="{{ lobbies[i].id }}" class="close-lobby"
+                        <a  {% if not lobbies[i].open %} data-bs-toggle="modal" class="close-lobby"
                             data-bs-target="#passwordModal" {% else %}
-                            href="/lobby/{{ lobbies[i].id }}" {% endif %}>
+                            class="open-lobby" {% endif %} data-lobbyid="{{ lobbies[i].id }}">
                             <div class="card-body">
                                 <h5 class="card-title">{{ lobbies[i].title }}</h5>
                             </div>
@@ -57,5 +56,8 @@
             </div>
         </div>
     </div>
-    <script src="{{url_for('static', filename='scripts/check_password.js')}}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+            integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+            crossorigin="anonymous"></script>
+    <script src="{{url_for('static', filename='scripts/join_to_lobby.js')}}"></script>
 {% endblock %}

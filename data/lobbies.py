@@ -11,7 +11,7 @@ class Lobby(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'lobbies'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    title = sqlalchemy.Column(sqlalchemy.String, default="Lobby")
+    title = sqlalchemy.Column(sqlalchemy.String, default="lobby")
     user_count = sqlalchemy.Column(sqlalchemy.Integer, default=10)
     open = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
