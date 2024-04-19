@@ -6,7 +6,7 @@ const socket = io({autoConnect: false});
 
 openLobbies.forEach((el) => {
     el.addEventListener('click', (e) => {
-        location.href = `http://127.0.0.1:1337/lobby/${parseInt(el.dataset.lobbyid)}`
+        location.href = `http://127.0.0.1:1338/lobby/${parseInt(el.dataset.lobbyid)}`
         socket.connect();
         socket.on('connect', function() {
             socket.emit('user_join', {room: el.dataset.lobbyid});
@@ -26,13 +26,13 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
     const password = e.target.parentNode.querySelector('[type=password]').value;
 
     let xhr = new XMLHttpRequest();
-    xhr.open("POST", `http://127.0.0.1:1337/check_lobby_password/`);
+    xhr.open("POST", `http://127.0.0.1:1338/check_lobby_password/`);
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.send(JSON.stringify({ lobby_id: lobby_id, password: password }))
     xhr.onload = function () {
         if (xhr.status == 200) {
             if (xhr.response == 'ok') {
-                location.href = `http://127.0.0.1:1337/lobby/${parseInt(lobby_id)}`;
+                location.href = `http://127.0.0.1:1338/lobby/${parseInt(lobby_id)}`;
                 socket.connect();
                 socket.on('connect', function() {
                     socket.emit('user_join', {room: lobby_id});

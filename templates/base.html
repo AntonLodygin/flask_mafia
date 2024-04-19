@@ -15,7 +15,7 @@
     <nav class="navbar bg-dark bg-body-tertiary" data-bs-theme="dark">
         {% if current_user.is_authenticated %}
             <div class="ps-5">
-                <a href="/logout">{{ current_user.email }}</a>
+                <a href="/logout">{{ current_user.login }}</a>
             </div>
         {% else %}
             <div class="ps-5">

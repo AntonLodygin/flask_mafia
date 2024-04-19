@@ -29,13 +29,13 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            form.email.errors.append("Пользователь с этой почтой уже существует")
+        if db_sess.query(User).filter(User.login == form.login.data).first():
+            form.login.errors.append("Пользователь с этой почтой уже существует")
         if form.password.data != form.password_repeat.data:
             form.password_repeat.errors.append("Пароли не совпадают")
         if not db_sess.query(User).filter(
-                User.email == form.email.data).first() and form.password.data == form.password_repeat.data:
-            new_user = User(email=form.email.data)
+                User.login == form.login.data).first() and form.password.data == form.password_repeat.data:
+            new_user = User(login   =form.login.data)
             new_user.set_password(form.password.data)
             db_sess.add(new_user)
             db_sess.commit()
@@ -50,9 +50,9 @@ def login():
     db_sess = db_session.create_session()
     form = LoginForm()
     if form.validate_on_submit():
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(User).filter(User.login == form.login.data).first()
         if not user:
-            form.email.errors.append("Пользователь не найден")
+            form.login.errors.append("Пользователь не найден")
         elif not user.check_password(form.password.data):
             form.password.errors.append("Неверный пароль")
         else:
@@ -115,23 +115,34 @@ def user_join(data):
     lobby = db_sess.query(Lobby).filter(Lobby.id == data["room"]).first()
     lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
     join_room(lobby.id)
+    print(request.cookies)
 
 
-@socketio.on("user_leave")
-def user_leave(data):
-    print("leave", data)
+# @socketio.on("user_leave")
+# def user_leave(data):
+#     print("leave", data)
 
 
-@socketio.on("disconnect")
-def disconnect():
-    print("disconnect", request.referrer)
+@socketio.on("connect")
+def connect():
+    if request.referrer.split("/")[3] == "lobby":
+        pass
+    print("connect", request.referrer.split("/"))
+
+
+# @socketio.on("disconnect")
+# def disconnect():
+#     print("disconnect", request.referrer)
+# @socketio.on("con_user")
+# def con_user():
+#     print("user", current_user.email, "connected")
 
 
 if __name__ == '__main__':
     # db_sess = db_session.create_session()
-    # user1 = User(email="q1")
+    # user1 = User(login="q1")
     # user1.set_password("q1")
-    # user2 = User(email="q2")
+    # user2 = User(login="q2")
     # user2.set_password("q2")
     # lobby1 = Lobby(title="close", open=False)
     # lobby1.set_password("qweqwe")
@@ -148,4 +159,4 @@ if __name__ == '__main__':
     # db_sess.add(player2)
     # db_sess.commit()
 
-    socketio.run(app, allow_unsafe_werkzeug=True, port=1337)
+    socketio.run(app, allow_unsafe_werkzeug=True, port=1338)

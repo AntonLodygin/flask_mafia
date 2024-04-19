@@ -1,15 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <ul>
+<div class="px-4 py-2">
+    <div class="row row-cols-md-5 g-3 py-3">
         {% for i in players %}
-            <li>{{ i.user.email }}</li>
-        {% endfor %}
-    </ul>
-    <br><br><br>
+            <div class="col">
+                <div class="card">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        {{ i.user.login }}
+                    </div>
+                    <div class="card-footer">
 
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <br><br><br>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
             integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
             crossorigin="anonymous"></script>
     <script src="{{url_for('static', filename='scripts/lobby.js')}}"></script>
+<div class="px-4 py-2">
 {% endblock %}
