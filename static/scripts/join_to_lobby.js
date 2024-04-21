@@ -6,8 +6,8 @@ const socket = io({autoConnect: false});
 
 openLobbies.forEach((el) => {
     el.addEventListener('click', (e) => {
-        location.href = `http://127.0.0.1:1338/lobby/${parseInt(el.dataset.lobbyid)}`
-        socket.connect();
+        location.href = `http://127.0.0.1:1338/lobby/${parseInt(el.dataset.lobbyid)}`;
+        socket.connect(`http://127.0.0.1:1338/lobby/${parseInt(el.dataset.lobbyid)}`);
         socket.on('connect', function() {
             socket.emit('user_join', {room: el.dataset.lobbyid});
         });
@@ -16,6 +16,8 @@ openLobbies.forEach((el) => {
 
 closeLobbies.forEach((el) => {
     el.addEventListener('click', (e)=> {
+        form.querySelector('[type=password]').value = "";
+        password_error.hidden = true;
         form.querySelector('[type=hidden]').value = el.dataset.lobbyid;
     })
 })
@@ -32,9 +34,11 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
     xhr.onload = function () {
         if (xhr.status == 200) {
             if (xhr.response == 'ok') {
+                console.log(socket.connected);
                 location.href = `http://127.0.0.1:1338/lobby/${parseInt(lobby_id)}`;
-                socket.connect();
+                socket.connect(`http://127.0.0.1:1338/lobby/${parseInt(lobby_id)}`);
                 socket.on('connect', function() {
+                    console.log(socket.connected);
                     socket.emit('user_join', {room: lobby_id});
                     });
             }
