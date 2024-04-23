@@ -32,21 +32,19 @@ if (players == playersCount) {
                 cardFooters[i].innerHTML = response[String(i)];
             }
 //            if (cardFooters[userId].innerHTML == "mafia" && playersLife[userId]) {
-            while () {
-                if (["mafia", "don", "sheriff", "civilian"].includes(cardFooters[userId].innerHTML) && playersLife[userId]) {
-                    for (let j = 0; j < players; j++) {
-    //                    if (["civilian", "sheriff"].includes(cardFooters[j].innerHTML)) {
-                        if (j != userId && playersLife[j]) {
-                            actionButtons[j].classList.add("btn-danger");
-                            actionButtons[j].value = "убить";
-                            actionButtons[j].hidden = false;
-                            actionButtons[j].addEventListener("click", function () {
-                                socket.emit("kill", {player_id: j, lobby_id: lobbyId});
-                            })
-                        };
-                    }
+            if (["mafia", "don", "sheriff", "civilian"].includes(cardFooters[userId].innerHTML) && playersLife[userId]) {
+                for (let j = 0; j < players; j++) {
+//                    if (["civilian", "sheriff"].includes(cardFooters[j].innerHTML)) {
+                    if (j != userId && playersLife[j]) {
+                        actionButtons[j].classList.add("btn-danger");
+                        actionButtons[j].value = "убить";
+                        actionButtons[j].hidden = false;
+                        actionButtons[j].addEventListener("click", function () {
+                            socket.emit("kill", {player_id: j, lobby_id: lobbyId});
+                        })
+                    };
                 }
-            }    
+            }
         }
         else {
             console.log('not 200');

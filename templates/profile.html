@@ -2,21 +2,55 @@
 
 {% block content %}
     <div class="px-4 py-2">
-        <div class="row row-cols-md-3 g-3 py-3">
+        <div class="row row-cols-md-5 g-3 py-3">
             <div class="col">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col">
+                            <div class="col-10">
                                 <h4 class="card-title">Количество матчей</h4>
-                                <p class="card-text">{{ current_user.match_count }}</p>
                             </div>
-                            <div class="col">
+                            <div class="col-2">
                                 <div class="d-flex justify-content-end">
                                     <img src="{{ url_for('static', filename='images/circle_play.svg') }}" height="32">
                                 </div>
                             </div>
                         </div>
+                        <p class="card-text">{{ current_user.match_count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-10">
+                                <h4 class="card-title">Побед за мафию</h4>
+                            </div>
+                            <div class="col-2">
+                                <div class="d-flex justify-content-end">
+                                    <img src="{{ url_for('static', filename='images/circle_play.svg') }}" height="32">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ current_user.mafia_winrate }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-10">
+                                <h4 class="card-title">Побед за мирных</h4>
+                            </div>
+                            <div class="col-2">
+                                <div class="d-flex justify-content-end">
+                                    <img src="{{ url_for('static', filename='images/circle_play.svg') }}" height="32">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ current_user.civilians_winrate }}</p>
                     </div>
                 </div>
             </div>

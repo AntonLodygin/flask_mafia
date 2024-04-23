@@ -2,7 +2,7 @@ from random import shuffle
 
 from flask import Flask, render_template, redirect, request, session, jsonify
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from flask_socketio import SocketIO, join_room, emit
+from flask_socketio import SocketIO, join_room, emit, leave_room
 
 from data import db_session
 from data.lobbies import Lobby
@@ -109,9 +109,7 @@ def check_lobby_password():
 @socketio.on("user_join")
 def user_join(data):
     db_sess = db_session.create_session()
-    session["room"] = data["room"]
     print("join", data)
-    print(session)
     lobby = db_sess.query(Lobby).filter(Lobby.id == data["room"]).first()
     lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
@@ -121,24 +119,20 @@ def user_join(data):
 
 @socketio.on("user_leave")
 def user_leave(data):
+    db_sess = db_session.create_session()
     print("leave", data)
+    lobby = db_sess.query(Lobby).filter(Lobby.id == data["room"]).first()
+    lobby.players.remove(Player(user_id=current_user.id, lobby_id=lobby.id))
+    db_sess.merge(lobby)
+    db_sess.commit()
+    leave_room(lobby.id)
 
 
 @socketio.on("connect")
 def connect():
     print(current_user.login)
-    print(request.url_root, request.url_rule, request.url, request.root_url, request.host_url, request.base_url)
-    if request.referrer.split("/")[3] == "lobby":
-        pass
-    print("connect", request.url)
+    print("connect", socketio.namespace_handlers)
 
-
-# @socketio.on("disconnect")
-# def disconnect():
-#     print("disconnect", request.referrer)
-# @socketio.on("con_user")
-# def con_user():
-#     print("user", current_user.email, "connected")
 
 @app.route("/distribution_roles/", methods=["POST"])
 def distribution_roles():
@@ -178,43 +172,43 @@ def profile():
 
 
 if __name__ == '__main__':
-    # db_sess = db_session.create_session()
-    # user1 = User(login="q1")
-    # user1.set_password("q1")
-    # user2 = User(login="q2")
-    # user2.set_password("q2")
-    # lobby1 = Lobby(title="close", open=False)
-    # lobby1.set_password("qweqwe")
-    # lobby2 = Lobby(title="open", open=True)
-    # player1 = Player(user_id=1, lobby_id=1)
-    # player2 = Player(user_id=2, lobby_id=2)
-    # lobby1.players.append(player1)
-    # lobby2.players.append(player2)
-    # db_sess.add(user1)
-    # db_sess.add(user2)
-    # db_sess.add(lobby1)
-    # db_sess.add(lobby2)
-    # db_sess.add(player1)
-    # db_sess.add(player2)
-    # l = Lobby(open=False)
-    # l.set_password("qweqwe")
-    # db_sess.add(l)
-    # db_sess.commit()
-    # for i in range(8):
-    #     u = User(login=f"i{i}")
-    #     u.set_password(f"i{i}")
-    #     db_sess.add(u)
-    #     db_sess.commit()
-    #     p = Player(user_id=u.id, lobby_id=l.id)
-    #     db_sess.add(p)
-    #     l.players.append(p)
-    #     db_sess.merge(l)
-    #     db_sess.commit()
-    # user_user = User(login="user")
-    # user_user.set_password("user")
-    # user_user2 = User(login="user2")
-    # user_user2.set_password("user2")
-    # db_sess.add(user_user)
-    # db_sess.add(user_user2)
-    # db_sess.commit()
+    db_sess = db_session.create_session()
+    user1 = User(login="q1")
+    user1.set_password("q1")
+    user2 = User(login="q2")
+    user2.set_password("q2")
+    lobby1 = Lobby(title="close", open=False)
+    lobby1.set_password("qweqwe")
+    lobby2 = Lobby(title="open", open=True)
+    player1 = Player(user_id=1, lobby_id=1)
+    player2 = Player(user_id=2, lobby_id=2)
+    lobby1.players.append(player1)
+    lobby2.players.append(player2)
+    db_sess.add(user1)
+    db_sess.add(user2)
+    db_sess.add(lobby1)
+    db_sess.add(lobby2)
+    db_sess.add(player1)
+    db_sess.add(player2)
+    l = Lobby(open=False)
+    l.set_password("qweqwe")
+    db_sess.add(l)
+    db_sess.commit()
+    for i in range(8):
+        u = User(login=f"i{i}")
+        u.set_password(f"i{i}")
+        db_sess.add(u)
+        db_sess.commit()
+        p = Player(user_id=u.id, lobby_id=l.id)
+        db_sess.add(p)
+        l.players.append(p)
+        db_sess.merge(l)
+        db_sess.commit()
+    user_user = User(login="user", mafia_winrate=12, civilians_winrate=55, match_count=3255)
+    user_user.set_password("user")
+    user_user2 = User(login="user2")
+    user_user2.set_password("user2")
+    db_sess.add(user_user)
+    db_sess.add(user_user2)
+    db_sess.commit()
     socketio.run(app, port=1338, allow_unsafe_werkzeug=True)
