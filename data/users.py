@@ -13,7 +13,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     login = sqlalchemy.Column(sqlalchemy.String, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
     mafia_winrate = sqlalchemy.Column(sqlalchemy.Integer, default=0)
-    civilians_winrate = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    civilian_winrate = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     match_count = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 
     def set_password(self, password):

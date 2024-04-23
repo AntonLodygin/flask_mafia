@@ -2,7 +2,6 @@ const form = document.querySelector('.check-lobby-password-form');
 const closeLobbies = document.querySelectorAll('.close-lobby');
 const openLobbies = document.querySelectorAll('.open-lobby');
 const password_error = document.querySelector("#password-error");
-const socket = io({autoConnect: false});
 
 openLobbies.forEach((el) => {
     el.addEventListener('click', (e) => {
@@ -34,9 +33,9 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
     xhr.onload = function () {
         if (xhr.status == 200) {
             if (xhr.response == 'ok') {
-                console.log(socket.connected);
                 location.href = `http://127.0.0.1:1338/lobby/${parseInt(lobby_id)}`;
-                socket.connect(`http://127.0.0.1:1338/lobby/${parseInt(lobby_id)}`);
+                const socket = io(location.href);
+                console.log(socket.connected);
                 socket.on('connect', function() {
                     console.log(socket.connected);
                     socket.emit('user_join', {room: lobby_id});

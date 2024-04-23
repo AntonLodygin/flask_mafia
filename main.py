@@ -127,9 +127,10 @@ def user_leave(data):
 @socketio.on("connect")
 def connect():
     print(current_user.login)
+    print(request.url_root, request.url_rule, request.url, request.root_url, request.host_url, request.base_url)
     if request.referrer.split("/")[3] == "lobby":
         pass
-    print("connect", request.referrer.split("/"))
+    print("connect", request.url)
 
 
 # @socketio.on("disconnect")
@@ -144,14 +145,37 @@ def distribution_roles():
     db_sess = db_session.create_session()
     players = db_sess.query(Lobby).filter(Lobby.id == request.json["lobby_id"]).first().players
     if not all([p.role for p in players]):
-        roles = ["mafia"] * 2 + ["don", "sheriff"] + ["civilians"] * 6
+        roles = ["mafia"] * 2 + ["don", "sheriff"] + ["civilian"] * 6
         shuffle(roles)
-        print(roles)
         for i, ii in enumerate(players):
             ii.role = roles[i]
+            if ii.user == current_user:
+                user_id = i
         db_sess.commit()
+    else:
+        for i, ii in enumerate(players):
+            if ii.user == current_user:
+                user_id = i
+                break
+    db_sess.commit()
     return jsonify(dict({str(j): jj.role for j, jj in enumerate(db_sess.query(Lobby).filter(
-        Lobby.id == request.json["lobby_id"]).first().players)}, **{"status": "ok"}))
+        Lobby.id == request.json["lobby_id"]).first().players)}, **{"user_id": user_id}))
+
+
+@app.route("/kill/", methods=["POST"])
+def kill():
+    print(request.json)
+    db_sess = db_session.create_session()
+    players = db_sess.query(Lobby).filter(Lobby.id == request.json["lobby_id"]).first().players
+    players[request.json["player_id"]].life = False
+    db_sess.commit()
+    return "killed"
+
+
+@app.route("/profile")
+def profile():
+    db_sess = db_session.create_session()
+    return render_template("profile.html")
 
 
 if __name__ == '__main__':
@@ -177,7 +201,7 @@ if __name__ == '__main__':
     l.set_password("qweqwe")
     db_sess.add(l)
     db_sess.commit()
-    for i in range(9):
+    for i in range(8):
         u = User(login=f"i{i}")
         u.set_password(f"i{i}")
         db_sess.add(u)
@@ -194,4 +218,4 @@ if __name__ == '__main__':
     db_sess.add(user_user)
     db_sess.add(user_user2)
     db_sess.commit()
-    socketio.run(app, allow_unsafe_werkzeug=True, port=1338)
+    socketio.run(app, port=1338, allow_unsafe_werkzeug=True)

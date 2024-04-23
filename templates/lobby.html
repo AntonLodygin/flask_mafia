@@ -1,27 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="px-4 py-2">
-    <div class="row row-cols-md-5 g-3 py-3">
-        {% for i in players %}
-            <div class="col">
-                <div class="card">
-                   <div class="card-header">
-                   </div>
-                    <div class="card-body">
-                        {{ i.user.login }}
+    <div class="px-4 py-2">
+        <div class="row row-cols-md-5 g-4 py-3">
+            {% for i in players %}
+                <div class="col">
+                    <div class="card">
+                       <div class="card-header">
+                       </div>
+                        <div class="card-body">
+                            {{ i.user.login }}
+                        </div>
+                        <div class="card-footer">
+                        </div>
                     </div>
-                    <div class="card-footer">
+                    <div id="action" class="d-flex justify-content-center mt-1">
+                        <input type="button" class="btn btn-sm" value="qwe" hidden>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div class="timer"></div>
+        <br><br><br>
+        <input type="hidden" value="{{ players_count }}" id="players-count">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+                integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+                crossorigin="anonymous"></script>
+        <script src="{{url_for('static', filename='scripts/lobby.js')}}"></script>
     </div>
-    <br><br><br>
-    <input type="hidden" value="{{ players_count }}" id="players-count">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-            integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-            crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='scripts/lobby.js')}}"></script>
-</div>
 {% endblock %}
