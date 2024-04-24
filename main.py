@@ -114,6 +114,11 @@ def user_join(data):
     lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
     db_sess.commit()
+    session["game_object"] = {
+        "players_roles": {"0": None, "1": None, "2": None, "3": None, "4": None, "5": None, "6": None, "7": None,
+                          "8": None, "9": None},
+        "players_lives": {"0": None, "1": None, "2": None, "3": None, "4": None, "5": None, "6": None, "7": None,
+                          "8": None, "9": None}, "role_move": "mafia", "players_count": 0, "lobby_id": lobby.id}
     join_room(lobby.id)
 
 
@@ -168,12 +173,11 @@ def kill(data):
 
 @socketio.on("check on sheriff")
 def check_on_sheriff(data):
-    print("kill", data)
+    print("check on sheriff", data)
     db_sess = db_session.create_session()
-    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
-    players[data["player_id"]].life = False
-    db_sess.commit()
-    emit("kill successful", {"player_id": data["player_id"]}, broadcast=True)
+    result = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players[
+                 data["player_id"]].role == "sheriff"
+    emit("check on sheriff successful", {"player_id": data["player_id"], "is_sheriff": result})
 
 
 @app.route("/profile")

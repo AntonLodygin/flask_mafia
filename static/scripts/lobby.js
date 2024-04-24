@@ -62,11 +62,11 @@ if (players == playersCount) {
             else if (hod % 3 == 1 && ["mafia", "don", "sheriff", "civilian"].includes(cardFooters[userId].innerHTML) && playersLife[userId]) {
                 for (let j = 0; j < players; j++) {
                     if (j != userId && playersLife[j]) {
-                        actionButtons[j].classList.add("btn-info");
+                        actionButtons[j].classList.add("btn-warning");
                         actionButtons[j].value = "проверить";
                         actionButtons[j].hidden = false;
                         actionButtons[j].addEventListener("click", function () {
-                            socket.emit("kill", {player_id: j, lobby_id: lobbyId});
+                            socket.emit("check on sheriff", {player_id: j, lobby_id: lobbyId});
                         })
                     };
                 }
@@ -77,6 +77,7 @@ if (players == playersCount) {
         }
     };
 }
+
 socket.on("kill successful", function (data) {
     console.log("kill successful");
     actionButtons.forEach((el) => {
@@ -85,6 +86,19 @@ socket.on("kill successful", function (data) {
     });
     playersLife[String(data["player_id"])] = 0;
     localStorage.setItem("playersLife", JSON.stringify(playersLife));
+    hod++;
+    localStorage.setItem("hod", hod);
+    document.querySelector("#player-move").innerHTML = hod;
+    console.log(playersLife);
+});
+
+socket.on("check on sheriff successful", function (data) {
+    console.log("check on sheriff successful");
+    console.log("player", data["player_id"], data["is_sheriff"])
+    actionButtons.forEach((el) => {
+        el.hidden = true;
+        el.classList.remove("btn-warning");
+    });
     hod++;
     localStorage.setItem("hod", hod);
     document.querySelector("#player-move").innerHTML = hod;
