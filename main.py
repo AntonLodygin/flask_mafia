@@ -166,6 +166,16 @@ def kill(data):
     emit("kill successful", {"player_id": data["player_id"]}, broadcast=True)
 
 
+@socketio.on("check on sheriff")
+def check_on_sheriff(data):
+    print("kill", data)
+    db_sess = db_session.create_session()
+    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    players[data["player_id"]].life = False
+    db_sess.commit()
+    emit("kill successful", {"player_id": data["player_id"]}, broadcast=True)
+
+
 @app.route("/profile")
 def profile():
     return render_template("profile.html")
@@ -211,4 +221,4 @@ if __name__ == '__main__':
     db_sess.add(user_user)
     db_sess.add(user_user2)
     db_sess.commit()
-    socketio.run(app, port=1338, allow_unsafe_werkzeug=True)
+    socketio.run(app, port=1234, allow_unsafe_werkzeug=True)
