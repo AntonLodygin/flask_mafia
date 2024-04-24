@@ -1,8 +1,8 @@
 from random import shuffle
 
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, jsonify
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from flask_socketio import SocketIO, join_room, emit, leave_room
+from flask_socketio import SocketIO, emit
 
 from data import db_session
 from data.lobbies import Lobby
@@ -81,7 +81,7 @@ def index():
 def lobby(id):
     db_sess = db_session.create_session()
     lobby = db_sess.query(Lobby).filter(Lobby.id == id).first()
-    return render_template("lobby.html", players=lobby.players, players_count=lobby.user_count)
+    return render_template("lobby.html", players=lobby.players)
 
 
 @app.route("/add_lobby", methods=["GET", "POST"])
@@ -89,7 +89,7 @@ def add_lobby():
     form = LobbyForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        new_lobby = Lobby(title=form.title.data, user_count=form.users_count.data, open=form.open.data)
+        new_lobby = Lobby(title=form.title.data, open=form.open.data)
         new_lobby.set_password(form.password.data)
         player = Player(user_id=current_user.id, lobby_id=new_lobby.id)
         db_sess.add(new_lobby)
@@ -114,12 +114,8 @@ def user_join(data):
     lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
     db_sess.commit()
-    session["game_object"] = {
-        "players_roles": {"0": None, "1": None, "2": None, "3": None, "4": None, "5": None, "6": None, "7": None,
-                          "8": None, "9": None},
-        "players_lives": {"0": None, "1": None, "2": None, "3": None, "4": None, "5": None, "6": None, "7": None,
-                          "8": None, "9": None}, "role_move": "mafia", "players_count": 0, "lobby_id": lobby.id}
-    join_room(lobby.id)
+    if len(lobby.players) == 10:
+        emit("lobby full", broadcast=True)
 
 
 @socketio.on("user_leave")
@@ -130,7 +126,6 @@ def user_leave(data):
     lobby.players.remove(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
     db_sess.commit()
-    leave_room(lobby.id)
 
 
 @socketio.on("connect")
@@ -139,10 +134,10 @@ def connect():
     print("connect", socketio.namespace_handlers)
 
 
-@app.route("/distribution_roles/", methods=["POST"])
-def distribution_roles():
+@socketio.on("get roles")
+def get_roles(data):
     db_sess = db_session.create_session()
-    players = db_sess.query(Lobby).filter(Lobby.id == request.json["lobby_id"]).first().players
+    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
     if not all([p.role for p in players]):
         roles = ["mafia"] * 2 + ["don", "sheriff"] + ["civilian"] * 6
         shuffle(roles)
@@ -157,27 +152,52 @@ def distribution_roles():
                 user_id = i
                 break
     db_sess.commit()
-    return jsonify(dict({str(j): jj.role for j, jj in enumerate(db_sess.query(Lobby).filter(
-        Lobby.id == request.json["lobby_id"]).first().players)}, **{"user_id": user_id}))
+    emit("get roles successful", {"players_roles": {str(j): jj.role for j, jj in enumerate(db_sess.query(Lobby).filter(
+        Lobby.id == data["lobby_id"]).first().players)}, "user_id": user_id}, broadcast=True)
+
+
+@socketio.on("start game")
+def start_game(data):
+    db_sess = db_session.create_session()
+    lobby = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first()
+    lobby.turn = "mafia"
+    emit("game", {"turn": "mafia", "players_lifes": {str(j): jj.life for j, jj in lobby.players},
+                  "players_roles": {str(j): jj.role for j, jj in lobby.players}}, broadcast=True)
 
 
 @socketio.on("kill")
 def kill(data):
     print("kill", data)
     db_sess = db_session.create_session()
-    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
-    players[data["player_id"]].life = False
+    lobby = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first()
+    lobby.players[data["player_id"]].life = False
+    lobby.turn = "don"
     db_sess.commit()
-    emit("kill successful", {"player_id": data["player_id"]}, broadcast=True)
+    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    emit("game", {"turn": "don", "players_lifes": {str(j): jj.life for j, jj in players},
+                  "players_roles": {str(j): jj.role for j, jj in players}}, broadcast=True)
 
 
 @socketio.on("check on sheriff")
 def check_on_sheriff(data):
     print("check on sheriff", data)
     db_sess = db_session.create_session()
-    result = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players[
-                 data["player_id"]].role == "sheriff"
-    emit("check on sheriff successful", {"player_id": data["player_id"], "is_sheriff": result})
+    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    emit("check on sheriff successful", {"player_id": data["player_id"],
+                                         "is_sherif": players[data["player_id"]].role == "sheriff"})
+    emit("game", {"turn": "sheriff", "players_lifes": {str(j): jj.life for j, jj in players},
+                  "players_roles": {str(j): jj.role for j, jj in players}}, broadcast=True)
+
+
+@socketio.on("check on mafia")
+def check_on_mafia(data):
+    print("check on sheriff", data)
+    db_sess = db_session.create_session()
+    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    emit("check on mafia successful", {"player_id": data["player_id"],
+                                       "is_mafia": players[data["player_id"]].role in ("mafia", "don")})
+    emit("game", {"turn": "sheriff", "players_lifes": {str(j): jj.life for j, jj in players},
+                  "players_roles": {str(j): jj.role for j, jj in players}}, broadcast=True)
 
 
 @app.route("/profile")

@@ -15,15 +15,14 @@
                         </div>
                     </div>
                     <div id="action" class="d-flex justify-content-center mt-1">
-                        <input type="button" class="btn btn-sm" value="qwe" hidden>
+                        <input type="button" class="btn btn-sm" hidden>
+                        <p></p>
                     </div>
                 </div>
             {% endfor %}
         </div>
-        <div class="timer"></div>
         <br><br><br>
-        <div id="player-move">0</div>
-        <input type="hidden" value="{{ players_count }}" id="players-count">
+        <div id="player-turn"></div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
                 integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
                 crossorigin="anonymous"></script>

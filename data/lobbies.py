@@ -12,8 +12,8 @@ class Lobby(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String, default="lobby")
-    user_count = sqlalchemy.Column(sqlalchemy.Integer, default=10)
     open = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    turn = sqlalchemy.Column(sqlalchemy.String)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
     players = orm.relationship("Player", secondary="player_to_lobby", backref="lobby")
 
