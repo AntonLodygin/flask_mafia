@@ -2,11 +2,12 @@ const form = document.querySelector('.check-lobby-password-form');
 const closeLobbies = document.querySelectorAll('.close-lobby');
 const openLobbies = document.querySelectorAll('.open-lobby');
 const password_error = document.querySelector("#password-error");
-
+const socket = io({autoConnect: false});
+console.log(closeLobbies + openLobbies);
 openLobbies.forEach((el) => {
     el.addEventListener('click', (e) => {
         location.href = `http://127.0.0.1:1234/lobby/${parseInt(el.dataset.lobbyid)}`;
-        socket.connect(`http://127.0.0.1:1234/lobby/${parseInt(el.dataset.lobbyid)}`);
+        socket.connect();
         socket.on('connect', function() {
             socket.emit('user_join', {room: el.dataset.lobbyid});
         });
@@ -34,8 +35,7 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
         if (xhr.status == 200) {
             if (xhr.response == 'ok') {
                 location.href = `http://127.0.0.1:1234/lobby/${parseInt(lobby_id)}`;
-                const socket = io(location.href);
-                console.log(socket.connected);
+                socket.connect();
                 socket.on('connect', function() {
                     console.log(socket.connected);
                     socket.emit('user_join', {room: lobby_id});
@@ -49,4 +49,7 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
             console.log('not 200');
         }
     };
+})
+socket.on("player joined", function (data) {
+    console.log(closeLobbies + openLobbies)
 })

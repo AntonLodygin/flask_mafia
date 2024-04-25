@@ -73,7 +73,7 @@ def logout():
 @app.route("/")
 def index():
     db_sess = db_session.create_session()
-    lobbies = [i for i in db_sess.query(Lobby).filter(Lobby.players).all() if len(i.players) < i.user_count]
+    lobbies = [i for i in db_sess.query(Lobby).filter(Lobby.players).all() if len(i.players) < 10]
     return render_template("index.html", lobbies=list(lobbies), title="Мафия")
 
 
@@ -114,6 +114,7 @@ def user_join(data):
     lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
     db_sess.commit()
+    emit("player joined")
     if len(lobby.players) == 10:
         emit("lobby full", broadcast=True)
 
