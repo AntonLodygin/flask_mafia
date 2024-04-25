@@ -7,6 +7,7 @@ const password_error = document.querySelector("#password-error");
 openLobbies.forEach((el) => {
     el.addEventListener('click', (e) => {
         location.href = `http://127.0.0.1:1234/lobby/${parseInt(el.dataset.lobbyid)}`;
+        socket.connect();
         socket.on('connect', function() {
             socket.emit('user_join', {room: el.dataset.lobbyid});
         });
@@ -34,6 +35,7 @@ form.querySelector("[type=submit]").addEventListener('click', (e) => {
         if (xhr.status == 200) {
             if (xhr.response == 'ok') {
                 location.href = `http://127.0.0.1:1234/lobby/${parseInt(lobby_id)}`;
+                socket.connect();
                 socket.on('connect', function() {
                     console.log(socket.connected);
                     socket.emit('user_join', {room: lobby_id});

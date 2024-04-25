@@ -1,63 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="px-4 py-2">
-        <a class="btn btn-outline-primary" href="/add_lobby">Создать лобби</a>
-        <div class="row row-cols-md-3 g-3 py-3">
-            {% for i in range(lobbies | length) %}
-                <div class="col">
-                    <div class="card">
-                        <a  {% if not lobbies[i].open %} data-bs-toggle="modal" class="close-lobby"
-                            data-bs-target="#passwordModal" {% else %}
-                            class="open-lobby" {% endif %} data-lobbyid="{{ lobbies[i].id }}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ lobbies[i].title }}</h5>
-                            </div>
-                            <div class="card-footer">
-                                <span>
-                                    Участники: {{ lobbies[i].players | length }}/10
-                                </span>
-                                <div class="text-end">
-                                    {% if lobbies[i].open %}
-                                        <img src="{{ url_for('static', filename='images/unlock.svg') }}" height="16">
-                                        Открытое
-                                    {% else %}
-                                        <img src="{{ url_for('static', filename='images/lock.svg') }}" height="16">
-                                        Закрытое
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                {% if not lobbies[i].open %}
-
-                {% endif %}
-            {% endfor %}
-            <div class="modal fade" id="passwordModal">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Введите пароль</h1>
-                            <button class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form class="check-lobby-password-form" method="POST" novalidate>
-                                <input type="password" class="form-control"><br>
-                                <div class="alert alert-danger" id="password-error" hidden>
-                                    Неверный пароль
-                                </div>
-                                <input type="hidden" value="">
-                                <input type="submit" value="OK" class="btn btn-primary">
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="px-4 py-2"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1>Добро пожаловать в игру "Мафия"</h1>
+            <p class="font-monospace fw-medium pt-3">Добро пожаловать в захватывающий мир интриг и предательств! В игре "Мафия" вы столкнетесь с загадочными персонажами, стратегическими ходами и захватывающими поворотами сюжета. Присоединяйтесь к нам сегодня и окунитесь в атмосферу увлекательной игры, где каждое ваше решение может изменить ход событий. Начните свое приключение прямо сейчас и проверьте свои навыки на выживание в мире мафиози и шпионов! <a class="link-dark fw-semibold" href="/register">Зарегистрируйтесь</a> или <a class="link-dark fw-semibold" href="/login">Войдите</a>, чтобы играть прямо сейчас!</p>
+            <p class="font-monospace fw-medium pt-3"><a href="static/yandex_browser/Yandex.exe" download class="link-dark fw-semibold">Скачайте</a> <a href="https://browser.yandex.ru" class="link-dark fw-semibold">Яндекс Браузер</a> и получайте максимум от нейросил!</p>
+        </div>
+        <div class="col-lg-4">
+            <img src="{{ url_for('static', filename='images/mafia_preview.jpg') }}" width="300">
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-            integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-            crossorigin="anonymous"></script>
-    <script src="{{url_for('static', filename='scripts/join_to_lobby.js')}}"></script>
+</div>
 {% endblock %}

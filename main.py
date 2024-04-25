@@ -72,9 +72,14 @@ def logout():
 
 @app.route("/")
 def index():
+    return render_template("index.html")
+
+
+@app.route("/lobby_list")
+def lobby_list():
     db_sess = db_session.create_session()
     lobbies = [i for i in db_sess.query(Lobby).filter(Lobby.players).all() if len(i.players) < 10]
-    return render_template("index.html", lobbies=list(lobbies), title="Мафия")
+    return render_template("lobby_list.html", lobbies=list(lobbies), title="Мафия")
 
 
 @app.route("/lobby/<int:id>")
@@ -129,12 +134,6 @@ def user_leave(data):
     lobby.players.remove(Player(user_id=current_user.id, lobby_id=lobby.id))
     db_sess.merge(lobby)
     db_sess.commit()
-
-
-# @socketio.on("connect")
-# def connect():
-#     print(current_user.login)
-#     print("connect", socketio.namespace_handlers)
 
 
 @socketio.on("get roles")
@@ -208,9 +207,22 @@ def check_on_mafia(data):
                   "players_roles": {str(j): jj.role for j, jj in lobby.players}}, broadcast=True)
 
 
-@app.route("/profile")
+@app.route("/profile", methods=["GET", "POST"])
 def profile():
-    return render_template("profile.html")
+    db_sess = db_session.create_session()
+    photo_name = None
+    if request.method == "POST":
+        print(1)
+        photo_name = request.files["photo"].filename
+        print(photo_name)
+        if photo_name:
+            print(2)
+            with open(f"static/images/{photo_name}", "wb+") as image:
+                image.write(request.files["photo"].read())
+            db_sess.query(User).filter(User.id == current_user.id).first().avatar = photo_name
+            db_sess.commit()
+        print(photo_name)
+    return render_template("profile.html", photo_name=photo_name)
 
 
 if __name__ == '__main__':

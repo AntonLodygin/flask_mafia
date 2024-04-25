@@ -15,6 +15,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     mafia_winrate = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     civilians_winrate = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     match_count = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    avatar = sqlalchemy.Column(sqlalchemy.String, default="yandex_logo.png")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

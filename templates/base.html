@@ -15,7 +15,22 @@
     <nav class="navbar bg-dark bg-body-tertiary" data-bs-theme="dark">
         {% if current_user.is_authenticated %}
             <div class="ps-5">
-                <a href="/logout">{{ current_user.login }}</a>
+                <div class="dropdown">
+                    <a class="btn" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0">
+                        <div class="row" style="padding: 0">
+                            <div class="col">
+                                <img id="avatar" src="{{ url_for('static', filename='images/{}'.format(current_user.avatar)) }}" class="rounded-circle" width="40" height="40">
+                            </div>
+                            <div class="col" style="display: flex; align-items: center">
+                                <span class="text-light">{{ current_user.login }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/logout">Выйти</a></li>
+                        <li><a class="dropdown-item" href="/profile">Профиль</a></li>
+                    </ul>
+                </div>
             </div>
         {% else %}
             <div class="ps-5">
@@ -27,7 +42,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
                 integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
                 crossorigin="anonymous"></script>
-    <script>const socket = io(); </script>
+    <script>const socket = io({autoConnect: false}); </script>
     {% block content %} {% endblock %}
 </body>
 </html>
