@@ -109,13 +109,15 @@ def check_lobby_password():
 @socketio.on("user_join")
 def user_join(data):
     db_sess = db_session.create_session()
-    print("join", data)
+    print("join", data, current_user.login)
     lobby = db_sess.query(Lobby).filter(Lobby.id == data["room"]).first()
-    lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
-    db_sess.merge(lobby)
+    if db_sess.query(Player).filter(Lobby.user_id == current_user.id).first() not in lobby.players:
+        lobby.players.append(Player(user_id=current_user.id, lobby_id=lobby.id))
+        db_sess.merge(lobby)
     db_sess.commit()
-    emit("player joined")
+    emit("player joined", {"user_login": current_user.login}, broadcast=True)
     if len(lobby.players) == 10:
+        print("lobby full")
         emit("lobby full", broadcast=True)
 
 
@@ -129,10 +131,10 @@ def user_leave(data):
     db_sess.commit()
 
 
-@socketio.on("connect")
-def connect():
-    print(current_user.login)
-    print("connect", socketio.namespace_handlers)
+# @socketio.on("connect")
+# def connect():
+#     print(current_user.login)
+#     print("connect", socketio.namespace_handlers)
 
 
 @socketio.on("get roles")
@@ -159,6 +161,7 @@ def get_roles(data):
 
 @socketio.on("start game")
 def start_game(data):
+    print("start game")
     db_sess = db_session.create_session()
     lobby = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first()
     lobby.turn = "mafia"
@@ -183,22 +186,26 @@ def kill(data):
 def check_on_sheriff(data):
     print("check on sheriff", data)
     db_sess = db_session.create_session()
-    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    lobby = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first()
+    lobby.turn = "sheriff"
+    db_sess.commit()
     emit("check on sheriff successful", {"player_id": data["player_id"],
-                                         "is_sherif": players[data["player_id"]].role == "sheriff"})
-    emit("game", {"turn": "sheriff", "players_lifes": {str(j): jj.life for j, jj in players},
-                  "players_roles": {str(j): jj.role for j, jj in players}}, broadcast=True)
+                                         "is_sherif": lobby.players[data["player_id"]].role == "sheriff"})
+    emit("game", {"turn": "sheriff", "players_lifes": {str(j): jj.life for j, jj in lobby.players},
+                  "players_roles": {str(j): jj.role for j, jj in lobby.players}}, broadcast=True)
 
 
 @socketio.on("check on mafia")
 def check_on_mafia(data):
-    print("check on sheriff", data)
+    print("check on mafia", data)
     db_sess = db_session.create_session()
-    players = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first().players
+    lobby = db_sess.query(Lobby).filter(Lobby.id == data["lobby_id"]).first()
+    lobby.turn = "mafia"
+    db_sess.commit()
     emit("check on mafia successful", {"player_id": data["player_id"],
-                                       "is_mafia": players[data["player_id"]].role in ("mafia", "don")})
-    emit("game", {"turn": "sheriff", "players_lifes": {str(j): jj.life for j, jj in players},
-                  "players_roles": {str(j): jj.role for j, jj in players}}, broadcast=True)
+                                       "is_mafia": lobby.players[data["player_id"]].role in ("mafia", "don")})
+    emit("game", {"turn": "mafia", "players_lifes": {str(j): jj.life for j, jj in lobby.players},
+                  "players_roles": {str(j): jj.role for j, jj in lobby.players}}, broadcast=True)
 
 
 @app.route("/profile")
