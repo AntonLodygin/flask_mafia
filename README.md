@@ -56,3 +56,5 @@
 <b>Библиотеки</b>: flask, flask-login, flask-socketio, flask-wtf, sqlalchemy, werkzeug, wtforms, sqlalchemy-serializer, flask-restful
 <h2>Презентация</h2>
 https://docs.google.com/presentation/d/1YcznfBaLFPh57M0gDDZyJudMAoLUoquXeVaU0jFP63A/edit?usp=sharing
+<h2>Хостинг</h2>
+https://antonlodygin123.pythonanywhere.com
