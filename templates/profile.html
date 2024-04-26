@@ -61,7 +61,9 @@
         </div>
         <form method="post" enctype="multipart/form-data">
             <input type="file" name="photo" class="form-control" style="width: 40%">
-            <br><img src="{{ url_for('static', filename='images/{}'.format(photo_name)) }}" height="100"><br>
+            {% if photo_name %}
+                <br><img src="{{ url_for('static', filename='images/{}'.format(photo_name)) }}" height="100"><br>
+            {% endif %}
             <br><button type="submit" class="btn btn-primary">Изменить аватарку</button>
         </form>
         <script>

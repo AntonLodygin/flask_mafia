@@ -1,12 +1,14 @@
 from random import shuffle
 
-from flask import Flask, render_template, redirect, request, jsonify
+from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask_restful import Api
 from flask_socketio import SocketIO, emit
 
 from data import db_session
 from data.lobbies import Lobby
 from data.players import Player
+from data.user_api import UserResource, UsersListResource
 from data.users import User
 from forms.lobby_form import LobbyForm
 from forms.login_form import LoginForm
@@ -15,6 +17,7 @@ from forms.register_form import RegisterForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mafia_secret_key'
 socketio = SocketIO(app)
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
@@ -33,9 +36,9 @@ def register():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.login == form.login.data).first():
             form.login.errors.append("Пользователь с этой почтой уже существует")
-        if form.password.data != form.password_repeat.data:
+        elif form.password.data != form.password_repeat.data:
             form.password_repeat.errors.append("Пароли не совпадают")
-        if not db_sess.query(User).filter(
+        elif not db_sess.query(User).filter(
                 User.login == form.login.data).first() and form.password.data == form.password_repeat.data:
             new_user = User(login=form.login.data)
             new_user.set_password(form.password.data)
@@ -59,7 +62,7 @@ def login():
             form.password.errors.append("Неверный пароль")
         else:
             login_user(user)
-            return redirect("/")
+            return redirect("/lobby_list")
     return render_template("login.html", form=form, title="Вход")
 
 
@@ -76,6 +79,7 @@ def index():
 
 
 @app.route("/lobby_list")
+@login_required
 def lobby_list():
     db_sess = db_session.create_session()
     lobbies = [i for i in db_sess.query(Lobby).filter(Lobby.players).all() if len(i.players) < 10]
@@ -83,6 +87,7 @@ def lobby_list():
 
 
 @app.route("/lobby/<int:id>")
+@login_required
 def lobby(id):
     db_sess = db_session.create_session()
     lobby = db_sess.query(Lobby).filter(Lobby.id == id).first()
@@ -90,6 +95,7 @@ def lobby(id):
 
 
 @app.route("/add_lobby", methods=["GET", "POST"])
+@login_required
 def add_lobby():
     form = LobbyForm()
     if form.validate_on_submit():
@@ -208,22 +214,22 @@ def check_on_mafia(data):
 
 
 @app.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
     db_sess = db_session.create_session()
     photo_name = None
     if request.method == "POST":
-        print(1)
         photo_name = request.files["photo"].filename
-        print(photo_name)
         if photo_name:
-            print(2)
             with open(f"static/images/{photo_name}", "wb+") as image:
                 image.write(request.files["photo"].read())
             db_sess.query(User).filter(User.id == current_user.id).first().avatar = photo_name
             db_sess.commit()
-        print(photo_name)
-    return render_template("profile.html", photo_name=photo_name)
+    return render_template("profile.html", photo_name=photo_name, title="Профиль")
 
+
+api.add_resource(UsersListResource, '/api/users')
+api.add_resource(UserResource, '/api/users/<int:user_id>')
 
 if __name__ == '__main__':
     db_sess = db_session.create_session()
