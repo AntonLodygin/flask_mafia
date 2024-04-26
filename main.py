@@ -31,6 +31,8 @@ def load_user(user_id):
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if current_user.is_authenticated:
+        return redirect("/lobby_list")
     form = RegisterForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -51,7 +53,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect("/")
+        return redirect("/lobby_list")
     db_sess = db_session.create_session()
     form = LoginForm()
     if form.validate_on_submit():
