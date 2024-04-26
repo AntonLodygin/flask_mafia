@@ -25,6 +25,9 @@
             <li>Логин</li>
             <li>Пароль</li>
             <li>Аватарка</li>
+            <li>Количество побед за мафию</li>
+            <li>Количество побед за мирных жителей</li>
+            <li>Количество сыгранных матчей</li>
         </ul><br>
         Игроки
         <ul>
@@ -47,9 +50,9 @@
 <b>Идея</b>: Сделать игру "Мафия" онлайн, используя Flask<br>
 
 <b>Реализация</b>:
-
 Созданы orm модели пользователей, лобби и игроков. Сверстанны страницы со списком лобби, стартовая, авторизации, регистрации, игрового лобби, профиля пользователя.
 Было использованно много джаваскрипта, а мегасложная технология WebSocket.<br>
-Библиотеки: flask, flask-login, flask-socketio, flask-wtf, sqlalchemy, werkzeug, wtforms, sqlalchemy-serializer, flask-restful
+
+<b>Библиотеки</b>: flask, flask-login, flask-socketio, flask-wtf, sqlalchemy, werkzeug, wtforms, sqlalchemy-serializer, flask-restful
 <h2>Презентация</h2>
 https://docs.google.com/presentation/d/1YcznfBaLFPh57M0gDDZyJudMAoLUoquXeVaU0jFP63A/edit?usp=sharing
